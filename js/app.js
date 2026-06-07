@@ -46,7 +46,8 @@ async function syncCollectionAsAdmin({ quiet = true } = {}) {
 
 function leaveEditMode() {
   if (!App.recipe) return;
-  storage.saveRecipe(App.recipe);
+  // dedupeTitle: gleichnamige Alt-Kopien werden hier überspeichert (Dubletten)
+  storage.saveRecipe(App.recipe, { dedupeTitle: true });
   syncCollectionAsAdmin(); // läuft im Hintergrund, nur wenn etwas geändert wurde
 }
 
@@ -423,6 +424,7 @@ $('btn-save').addEventListener('click', async () => {
   const original = btn.innerHTML;
   const { saveNow } = await import('./editor.js');
   saveNow();
+  storage.saveRecipe(App.recipe, { dedupeTitle: true }); // gleichnamige Alt-Kopien ersetzen
   let label = 'Gespeichert';
   if (App.recipe?.published?.admin) {
     btn.innerHTML = 'Speichert in Sammlung …';
