@@ -196,11 +196,13 @@ function update({ speakNow = true } = {}) {
     li.classList.toggle('active', i === state.index);
     li.classList.toggle('done', state.done.has(li.dataset.id));
   });
-  document.querySelector('#steps .step.active')
-    ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   const allDone = r.steps.every((s) => state.done.has(s.id));
   $('finished-card').hidden = !allDone;
   renderTimer();
+  // Timer-Schritte sind hoch: ans Schritt-Ende scrollen, damit der Timer
+  // vollständig über der Kochleiste sichtbar ist (scroll-margin im CSS)
+  document.querySelector('#steps .step.active')
+    ?.scrollIntoView({ behavior: 'smooth', block: document.getElementById('step-timer') ? 'end' : 'center' });
   if (speakNow && autoSpeak()) {
     speak(stepText(r, r.steps[state.index]));
   }

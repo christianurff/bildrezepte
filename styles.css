@@ -277,7 +277,7 @@ body:not(.edit) .edit-bar { display: none; }
 
 /* ===== Kochmodus ===== */
 body.cook .step { opacity: .35; transition: opacity .3s; }
-body.cook .step.active { opacity: 1; border: 3px solid var(--akzent); border-radius: var(--radius); background: var(--akzent-hell); }
+body.cook .step.active { opacity: 1; border: 3px solid var(--akzent); border-radius: var(--radius); background: var(--akzent-hell); scroll-margin: 4rem 0 5.5rem; }
 body.cook .step.done .step-badge { background: var(--gruen); }
 body.cook .step.done .step-badge::after { content: ' ✓'; }
 /* Kompakte Symbol-Leiste: eine Zeile, nur Icons (Beschriftung im title) */
@@ -300,6 +300,23 @@ body.cook .symbol-card { cursor: pointer; position: relative; }
 body.cook .symbol-card * { pointer-events: none; }
 body.cook .symbol-card.done { border: 3px solid var(--gruen); }
 body.cook .symbol-card.done::after { content: "✓"; position: absolute; top: .15rem; right: .35rem; color: var(--gruen); font-weight: 700; font-size: 1.4rem; }
+
+/* ===== Smartphone (schmal): Kochen mit dem Handy ===== */
+@media (max-width: 600px) {
+  /* Kochmodus: aktiver Schritt deutlich und vollständig sichtbar */
+  body.cook .step.active .chunk-symbol { width: 5.5rem; height: 5.5rem; }
+  body.cook .step { scroll-margin: 4.5rem; }
+  /* Timer kompakt, damit er samt Knöpfen über der Kochleiste Platz hat */
+  .timer-disc { width: 6.5rem; height: 6.5rem; }
+  .timer-disc span { font-size: 1rem; padding: .2rem .55rem; }
+  #step-timer { gap: .7rem; }
+  .timer-btns button { padding: .4rem .7rem; }
+  .cook-bar { gap: .45rem; padding: .5rem .4rem; }
+  .cook-bar button { padding: .5rem .8rem; }
+  /* Editor-Leiste: alle drei Knöpfe in einer Zeile */
+  .edit-bar { gap: .4rem; padding: .5rem .3rem; }
+  .edit-bar button { padding: .45rem .55rem; font-size: .9rem; }
+}
 
 /* ===== Teilen ===== */
 .share-qr { display: flex; justify-content: center; }
