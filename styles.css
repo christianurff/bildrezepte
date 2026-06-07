@@ -1,0 +1,310 @@
+/* Bildrezepte — Bildschirm-Styles im METACOM-Stil:
+   weiß, petrolfarbene Sektionsbalken, gestrichelte Symbolkarten, klare Schrift. */
+
+/* Andika (SIL): Grundschulschrift für Leseanfänger */
+@font-face {
+  font-family: "Andika";
+  src: url("fonts/andika-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Andika";
+  src: url("fonts/andika-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  --akzent: #478f90;
+  --akzent-hell: #edf4f4;
+  --gruen: #2e9e44;
+  --text: #1a1a1a;
+  --text-dimm: #767676;
+  --rand: #c8c8c8;
+  --karte-rand: #9a9a9a;
+  --radius: 10px;
+  font-size: 18px;
+}
+* { box-sizing: border-box; }
+/* Kein Zoom durch Doppeltipp (Kinderhände!): Tippen/Scrollen bleibt normal.
+   text-size-adjust: iOS bläht kleine Schrift (z.B. Fußzeile) sonst künstlich auf. */
+html { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* hidden-Attribut muss immer gewinnen — auch gegen display:flex-Regeln */
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  font-family: "Andika", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: #fff;
+}
+/* appearance:none — iOS-WebKit erzwingt sonst feste Knopfbreiten (Text bricht/überlappt);
+   color:inherit — sonst färbt iOS alle Knöpfe systemblau */
+button { font: inherit; min-height: 44px; min-width: 44px; cursor: pointer; -webkit-appearance: none; appearance: none; color: inherit; }
+a { color: var(--akzent); }
+
+/* SVG-Icons (statt Emojis): erben die Textfarbe; Klicks gehen zum Knopf durch */
+.icon { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2;
+        stroke-linecap: round; stroke-linejoin: round; vertical-align: -.18em; }
+button .icon, label .icon { pointer-events: none; }
+button .icon, label .icon { margin-right: .35rem; }
+[data-icon-after] .icon { margin-right: 0; margin-left: .35rem; }
+
+.app-header { display: flex; align-items: center; gap: .8rem; padding: .5rem 1rem; border-bottom: 2px solid var(--akzent); }
+/* Im Bearbeiten-Modus bleibt die Kopfzeile sichtbar (wie die Leiste unten);
+   im Kochmodus scrollt sie wie bisher weg — mehr Platz für die Schritte. */
+body.edit .app-header { position: sticky; top: 0; background: #fff; z-index: 10; }
+.app-title { font-size: 1.3rem; margin: 0; color: var(--akzent); }
+.app-nav { display: flex; gap: .4rem; margin-left: auto; }
+.nav-back { display: inline-flex; align-items: center; gap: .15rem; border: none; background: none; color: var(--akzent); font-weight: 700; padding: .3rem .4rem .3rem 0; }
+.nav-back .icon { width: 1.4em; height: 1.4em; margin: 0; }
+.nav-btn { border: 1px solid var(--rand); border-radius: var(--radius); background: #fff; padding: .3rem .7rem; color: var(--akzent); }
+.nav-btn:hover { background: var(--akzent-hell); }
+
+main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+
+/* Stack-Übergänge wie bei iOS: vorwärts schiebt die neue Ebene über die
+   volle Breite herein, zurück gleitet von links zurück */
+@keyframes slide-in-right { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes slide-in-left { from { transform: translateX(-30%); opacity: .4; } to { transform: none; opacity: 1; } }
+.view.slide-push { animation: slide-in-right .32s cubic-bezier(.32,.72,0,1); }
+.view.slide-pop { animation: slide-in-left .28s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .view.slide-push, .view.slide-pop { animation: none; }
+}
+.section-bar { background: var(--akzent); color: #fff; text-align: center; font-weight: 700; padding: .45rem; border-radius: 6px; margin: 1.4rem 0 .8rem; }
+.symbol-card { display: inline-flex; flex-direction: column; align-items: center; gap: .3rem; border: 2px dashed var(--karte-rand); border-radius: 6px; padding: .5rem; background: #fff; }
+/* Lange Beschriftungen: zentriert, ausgewogen umbrochen, Komposita getrennt
+   („Weinstein-backpulver"), ab ~25 Zeichen eine Stufe kleiner */
+.card-label { text-align: center; max-width: 100%; overflow-wrap: break-word; hyphens: auto; -webkit-hyphens: auto; text-wrap: balance; }
+.card-label.long { font-size: .85em; }
+.app-footer { max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: var(--text-dimm); }
+body.cook .app-footer { display: none; } /* im Kochmodus keine Lizenz-Fußzeile */
+.app-footer small { font-size: .62rem; line-height: 1.25; display: block; }
+.app-footer a { color: var(--text-dimm); }
+
+/* ===== Start-Ansicht ===== */
+.input-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
+.tile { display: flex; flex-direction: column; align-items: center; gap: .4rem; padding: 1.2rem .5rem; font-size: 2.5rem; border: 2px solid var(--rand); border-radius: var(--radius); background: #fff; }
+.tile span { font-size: 1rem; font-weight: 700; }
+.tile .icon { margin: 0; color: var(--akzent); }
+.finished-card p .icon { display: block; width: 2.6rem; height: 2.6rem; margin: 0 auto .3rem; color: var(--gruen); }
+.tile:hover { border-color: var(--akzent); background: var(--akzent-hell); }
+#input-panel { margin-top: 1rem; display: flex; flex-direction: column; gap: .6rem; }
+#text-input, #url-input { font: inherit; padding: .6rem; border: 2px solid var(--rand); border-radius: var(--radius); width: 100%; }
+.btn-primary { background: var(--akzent); color: #fff; border: none; border-radius: var(--radius); padding: .7rem 1.2rem; font-weight: 700; align-self: flex-start; }
+.btn-primary:disabled { opacity: .5; cursor: wait; }
+/* inline-flex: iOS-WebKit berechnet die Breite von Knöpfen mit Inline-SVG sonst falsch */
+.btn-quiet { border: none; background: none; color: var(--text-dimm); text-decoration: underline; white-space: nowrap; display: inline-flex; align-items: center; gap: .35rem; }
+.btn-quiet .icon { margin-right: 0; }
+.btn-quiet.active { color: var(--akzent); font-weight: 700; }
+.admin-hint { color: var(--akzent); font-weight: 700; margin: .2rem 0 .5rem; }
+.nav-btn { display: inline-flex; align-items: center; gap: .35rem; }
+.nav-btn .icon { margin-right: 0; }
+.progress { margin-top: 1rem; padding: .8rem; background: var(--akzent-hell); border-radius: var(--radius); font-weight: 700; }
+.error-box { margin-top: 1rem; padding: .8rem; border: 2px solid #c0392b; border-radius: var(--radius); color: #c0392b; }
+.my-recipes { list-style: none; margin: 0; padding: 0; }
+.my-recipe { display: flex; align-items: center; gap: .5rem; border-bottom: 1px dotted var(--rand); }
+.my-recipe-open { flex: 1; text-align: left; border: none; background: none; padding: .6rem .2rem; }
+.my-recipe-open:hover { color: var(--akzent); }
+.my-recipe-delete { border: none; background: none; }
+.my-recipes .empty { color: var(--text-dimm); padding: .6rem 0; list-style: none; }
+.backup-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.backup-row button { flex-shrink: 0; }
+@media (max-width: 600px) { .input-tiles { grid-template-columns: 1fr; } }
+
+/* ===== Rezepte-Sammlung ===== */
+.collection-search { display: flex; gap: .5rem; }
+.collection-search input { flex: 1; font: inherit; padding: .55rem; border: 2px solid var(--rand); border-radius: var(--radius); }
+.collection-search button { border: 1px solid var(--rand); border-radius: var(--radius); background: #fff; padding: .3rem .8rem; }
+.collection-cats { display: flex; flex-wrap: wrap; gap: .35rem; margin: .7rem 0; }
+.cat-chip { border: 1px solid var(--rand); border-radius: 999px; background: #fff; padding: .2rem .6rem; min-height: 30px; font-size: .85rem; }
+.cat-chip.active { background: var(--akzent); border-color: var(--akzent); color: #fff; font-weight: 700; }
+.collection-list { list-style: none; margin: 0; padding: 0; }
+.collection-item { display: flex; align-items: center; gap: .4rem; border-bottom: 1px dotted var(--rand); }
+.collection-open { flex: 1; display: flex; align-items: center; gap: .8rem; text-align: left; border: none; background: none; padding: .55rem .2rem; }
+.collection-open:hover strong { color: var(--akzent); }
+.collection-preview { display: flex; gap: .2rem; flex: 0 0 auto; }
+.collection-preview img { width: 2.6rem; height: 2.6rem; object-fit: contain; }
+.collection-info { display: flex; flex-direction: column; gap: .15rem; }
+.collection-info small { color: var(--text-dimm); }
+.collection-report { border: none; background: none; color: var(--text-dimm); }
+.collection-report:hover { color: #c0392b; }
+.collection-list .empty { color: var(--text-dimm); padding: .6rem 0; }
+.my-recipe-publish { border: none; background: none; color: var(--text-dimm); }
+.my-recipe-publish:hover { color: var(--akzent); }
+.publish-label { display: flex; flex-direction: column; gap: .2rem; font-weight: 700; margin: .6rem 0; }
+.publish-label input { font: inherit; padding: .45rem; border: 2px solid var(--rand); border-radius: 6px; }
+
+/* ===== Rezept-Ansicht: Schritte und Karten ===== */
+#recipe-title { color: var(--akzent); }
+.servings-stepper { display: flex; align-items: center; gap: .8rem; }
+.servings-stepper button { border: 2px solid var(--akzent); border-radius: 50%; width: 2.4rem; height: 2.4rem; background: #fff; font-weight: 700; color: var(--akzent); }
+.steps { list-style: none; margin: 0; padding: 0; }
+.step { display: flex; align-items: flex-start; gap: .8rem; padding: 1rem .2rem; border-bottom: 2px dotted var(--akzent); }
+.step-side { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: .35rem; }
+.step-main { flex: 1; display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+.step-badge { width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--akzent); color: #fff; display: grid; place-items: center; font-weight: 700; }
+.flag-badge { width: 1.9rem; height: 1.9rem; border: 2px solid var(--akzent); border-radius: 50%; display: grid; place-items: center; color: var(--akzent); background: #fff; }
+.flag-badge .icon { width: 1.1rem; height: 1.1rem; margin: 0; }
+.step-note { font-size: .85rem; color: var(--text-dimm); font-style: italic; }
+.flags-toggles { display: flex; flex-direction: column; gap: .5rem; margin: .6rem 0; }
+.flag-toggle { display: flex; align-items: center; gap: .5rem; border: 2px solid var(--rand); border-radius: var(--radius); background: #fff; padding: .5rem .8rem; text-align: left; }
+.flag-toggle.active { border-color: var(--akzent); background: var(--akzent-hell); font-weight: 700; }
+.set-row { display: flex; align-items: center; gap: .6rem; padding: .4rem 0; cursor: pointer; }
+.set-row input { width: 1.3rem; height: 1.3rem; accent-color: var(--akzent); }
+.step-chunks { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; flex: 1; }
+.chunk { display: inline-flex; flex-direction: column; align-items: center; gap: .25rem; max-width: 9rem; text-align: center; }
+.chunk-symbol { width: 4.5rem; height: 4.5rem; object-fit: contain; }
+.multi-row { display: flex; gap: .15rem; flex-wrap: wrap; justify-content: center; max-width: 9rem; }
+.chunk-symbol.mini { width: 2.5rem; height: 2.5rem; }
+.chunk-arrow { font-size: 2.5rem; align-self: center; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: .8rem; }
+.card-symbol { width: 5rem; height: 5rem; object-fit: contain; }
+.finished-card { text-align: center; padding: 1.5rem; border: 3px solid var(--gruen); border-radius: var(--radius); margin-top: 1rem; font-size: 1.4rem; font-weight: 700; }
+/* Platzhalter (kein ARASAAC-Treffer) im Edit-Modus rot markieren (Spec § 6) */
+body.edit img[src$="platzhalter.svg"] { outline: 3px solid #c0392b; border-radius: 4px; }
+
+/* ===== Editor-Werkzeuge ===== */
+body.edit .chunk-text:not(.chunk-qty) { min-width: 2rem; border-bottom: 1px dashed var(--rand); }
+body.edit .chunk-text:focus { outline: 2px solid var(--akzent); border-radius: 4px; }
+body.edit .chunk-qty { cursor: pointer; text-decoration: underline dotted; }
+body.edit .card-label { cursor: pointer; text-decoration: underline dotted; }
+body.edit .chunk-symbol, body.edit .card-symbol { cursor: pointer; }
+.chunk-del, .text-del { border: none; background: none; color: #c0392b; font-size: 1rem; min-height: 0; min-width: 0; padding: 0 .2rem; visibility: hidden; }
+.chunk:hover .chunk-del, .chunk:focus-within .chunk-del,
+.chunk:hover .text-del, .chunk:focus-within .text-del { visibility: visible; }
+.chunk-text-wrap { display: inline-flex; align-items: center; }
+.chunk-img-wrap { position: relative; display: inline-flex; }
+.symbol-del { position: absolute; top: -.5rem; right: -.5rem; width: 1.3rem; height: 1.3rem; min-width: 0; min-height: 0; padding: 0; border: 1px solid #c0392b; border-radius: 50%; background: #fff; color: #c0392b; font-size: .9rem; line-height: 1; visibility: hidden; }
+.chunk:hover .symbol-del, .chunk:focus-within .symbol-del { visibility: visible; }
+.chunk-insert { align-self: center; min-width: 0; min-height: 0; width: 1.4rem; height: 2.2rem; padding: 0; border: 1px dashed var(--rand); border-radius: 6px; background: none; color: var(--text-dimm); font-size: .9rem; opacity: .45; }
+.chunk-insert:hover { opacity: 1; border-color: var(--akzent); color: var(--akzent); }
+.chunk-add { border: 2px dashed var(--rand); background: none; border-radius: 6px; color: var(--text-dimm); align-self: center; }
+.chunk-symbol-add { width: 2.4rem; height: 2.4rem; min-width: 0; min-height: 0; border: 2px dashed var(--rand); border-radius: 6px; background: none; color: var(--text-dimm); font-size: 1.1rem; }
+.chunk-symbol-add:hover { border-color: var(--akzent); color: var(--akzent); }
+.step-tools { display: flex; flex-direction: column; gap: .2rem; }
+.step-tools button { border: 1px solid var(--rand); background: #fff; border-radius: 6px; min-height: 34px; min-width: 34px; padding: 0; color: var(--akzent); }
+.card-add { font-size: 1.6rem; color: var(--text-dimm); cursor: pointer; justify-content: center; }
+dialog { border: 2px solid var(--akzent); border-radius: var(--radius); max-width: 30rem; width: 92%; }
+#symbol-dialog.dragover { outline: 3px dashed var(--akzent); outline-offset: -8px; }
+.chunk-symbol-add.dragover, img.chunk-symbol.dragover { outline: 3px dashed var(--akzent); outline-offset: 2px; }
+dialog h3 { color: var(--akzent); margin: .8rem 0 .3rem; }
+dialog h3:first-child { margin-top: 0; }
+.info-liste { margin: .3rem 0; padding-left: 1.2rem; }
+.info-liste li { margin-bottom: .35rem; font-size: .92rem; }
+.dialog-actions a.nav-btn { text-decoration: none; display: inline-flex; align-items: center; padding: .5rem .9rem; }
+dialog::backdrop { background: rgba(0,0,0,.35); }
+.dialog-form { display: flex; flex-direction: column; gap: .7rem; }
+.dialog-form label { display: flex; flex-direction: column; gap: .2rem; font-weight: 700; }
+.dialog-form input, .dialog-form select { font: inherit; padding: .45rem; border: 2px solid var(--rand); border-radius: 6px; }
+.dialog-hint { color: var(--text-dimm); margin: 0; }
+.dialog-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.dialog-actions button { border: 1px solid var(--rand); border-radius: var(--radius); background: #fff; padding: .5rem .9rem; }
+/* Spezifischer als „.dialog-actions button" — sonst weißer Text auf weißem Grund */
+.dialog-actions .btn-primary { border: none; background: var(--akzent); color: #fff; }
+
+/* ===== Symbol-Tausch + Lexikon ===== */
+.symbol-quick { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.quick-sym { display: inline-flex; flex-direction: column; align-items: center; gap: .15rem; border: 1px solid var(--rand); border-radius: 6px; background: #fff; padding: .3rem .5rem; font-size: .72rem; min-width: 3.6rem; color: var(--text); }
+.quick-sym img, .quick-sym .icon { width: 2rem; height: 2rem; margin: 0; }
+.quick-sym .icon { color: var(--akzent); }
+.ca-zutat-bild { width: 2rem; height: 2rem; object-fit: contain; }
+.symbol-search { display: flex; gap: .5rem; margin-bottom: .7rem; }
+.symbol-search input { flex: 1; font: inherit; padding: .45rem; border: 2px solid var(--rand); border-radius: 6px; }
+.symbol-search button { border: 1px solid var(--rand); border-radius: 6px; background: #fff; }
+.symbol-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr)); gap: .5rem; max-height: 40vh; overflow-y: auto; margin-bottom: .7rem; }
+.symbol-result { width: 100%; aspect-ratio: 1; object-fit: contain; border: 2px solid var(--rand); border-radius: 6px; cursor: pointer; background: #fff; }
+.symbol-result:hover { border-color: var(--akzent); }
+.btn-file { border: 1px solid var(--rand); border-radius: var(--radius); background: #fff; padding: .5rem .9rem; cursor: pointer; display: inline-flex; align-items: center; }
+.lexicon-list { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow-y: auto; }
+.lexicon-entry { display: flex; align-items: center; gap: .7rem; padding: .35rem 0; border-bottom: 1px dotted var(--rand); }
+.lexicon-entry img { width: 2.6rem; height: 2.6rem; object-fit: contain; }
+.lexicon-entry span { flex: 1; }
+.lexicon-del { border: none; background: none; color: #c0392b; font-size: 1.2rem; }
+
+/* ===== Vollbild-/Anzeigemodus: skaliert die ganze App über die Root-Schrift ===== */
+html.fullscreen { font-size: clamp(22px, 2.2vw, 30px); }
+html.fullscreen .app-header, html.fullscreen .app-footer { display: none; }
+html.fullscreen main { max-width: none; padding: 1.5rem 4vw 2rem; }
+html.fullscreen .chunk-symbol { width: clamp(5rem, 10vw, 10rem); height: clamp(5rem, 10vw, 10rem); }
+html.fullscreen .chunk { max-width: clamp(9rem, 16vw, 14rem); }
+html.fullscreen .card-symbol { width: clamp(5rem, 9vw, 8rem); height: clamp(5rem, 9vw, 8rem); }
+
+/* ===== Schüler-Modus: nur Kochansicht, immer Vollbild ===== */
+body.schueler .app-nav, body.schueler .app-footer, body.schueler #btn-checklist,
+body.schueler #cook-lock, body.schueler #cook-fullscreen,
+body.schueler .cook-auto, body.schueler .servings-stepper { display: none !important; }
+/* Verlassen: langes Drücken auf den Rezepttitel (liegt fern der Systemgesten-Zonen) */
+body.schueler #recipe-title { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
+
+/* ===== Routine-Bausteine (gruppiert: vor / nach dem Kochen) ===== */
+.routines-panel { display: none; margin-bottom: .8rem; }
+body.edit .routines-panel { display: block; }
+.routine-group { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-bottom: .4rem; }
+.routines-label { font-weight: 700; min-width: 9.5rem; }
+.routine-chip { border: 1px solid var(--rand); border-radius: 999px; background: #fff; padding: .25rem .8rem; min-height: 36px; color: var(--akzent); }
+.routine-chip.active { background: var(--akzent); border-color: var(--akzent); color: #fff; font-weight: 700; }
+.routines-chips { display: flex; gap: .4rem; flex-wrap: wrap; margin: .5rem 0 .8rem; }
+
+/* ===== Einkaufs-/Bereitstellungsliste ===== */
+dialog.wide { max-width: 44rem; }
+.check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: .7rem; margin-bottom: .8rem; }
+.check-card { display: flex; flex-direction: column; align-items: center; gap: .3rem; border: 2px dashed var(--karte-rand); border-radius: 8px; background: #fff; padding: .6rem .4rem; position: relative; }
+.check-card img { width: 4rem; height: 4rem; object-fit: contain; }
+.check-card span { font-size: .9rem; }
+.check-card.done { border: 3px solid var(--gruen); }
+.check-card.done::after { content: "✓"; position: absolute; top: .25rem; right: .4rem; color: var(--gruen); font-size: 1.4rem; font-weight: 700; }
+.check-card * { pointer-events: none; }
+
+/* ===== Time-Timer (Kochmodus): 60-Minuten-Zifferblatt mit rotem Keil ===== */
+#step-timer { display: flex; align-items: center; gap: 1rem; margin-top: .6rem; }
+.timer-disc { width: 8.5rem; height: 8.5rem; border-radius: 50%; border: 3px solid #555; display: grid; place-items: center; flex: 0 0 auto; position: relative; background: #f2f2f2; }
+/* 12 Fünf-Minuten-Striche als äußerer Ring */
+.timer-disc::before { content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: repeating-conic-gradient(from -0.75deg, #555 0deg 1.5deg, transparent 1.5deg 30deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 80%, #000 82%);
+  mask: radial-gradient(closest-side, transparent 80%, #000 82%); }
+.timer-disc span { background: #fff; border: 1px solid #ccc; border-radius: 999px; padding: .3rem .7rem; font-weight: 700; font-size: 1.15rem; z-index: 1; }
+.timer-btns { display: flex; flex-direction: column; gap: .5rem; }
+.timer-btns button { border: 2px solid var(--akzent); border-radius: var(--radius); background: #fff; padding: .5rem 1rem; font-weight: 700; color: var(--akzent); }
+
+/* ===== Bearbeiten-Leiste: Einkaufsliste · Speichern · Kochen ===== */
+.edit-bar { position: sticky; bottom: 0; background: #fff; border-top: 2px solid var(--akzent); display: flex; justify-content: center; gap: .7rem; padding: .6rem; flex-wrap: wrap; }
+body:not(.edit) .edit-bar { display: none; }
+.edit-bar button { border: 2px solid var(--akzent); border-radius: var(--radius); background: #fff; padding: .55rem 1rem; font-weight: 700; color: var(--akzent); white-space: nowrap; }
+.edit-bar .btn-primary { border: none; background: var(--akzent); color: #fff; }
+
+/* ===== Kochmodus ===== */
+body.cook .step { opacity: .35; transition: opacity .3s; }
+body.cook .step.active { opacity: 1; border: 3px solid var(--akzent); border-radius: var(--radius); background: var(--akzent-hell); }
+body.cook .step.done .step-badge { background: var(--gruen); }
+body.cook .step.done .step-badge::after { content: ' ✓'; }
+/* Kompakte Symbol-Leiste: eine Zeile, nur Icons (Beschriftung im title) */
+.cook-bar { position: sticky; bottom: 0; background: #fff; border-top: 2px solid var(--akzent); display: flex; gap: .7rem; padding: .6rem; justify-content: center; flex-wrap: nowrap; align-items: center; }
+body:not(.cook) .cook-bar { display: none; }
+.cook-bar button { border: 2px solid var(--akzent); border-radius: var(--radius); background: #fff; padding: .55rem 1.1rem; color: var(--akzent); }
+.cook-bar button .icon { width: 1.9rem; height: 1.9rem; margin: 0; }
+body.native #cook-fullscreen { display: none; } /* App: Schüler-Modus übernimmt Vollbild */
+/* App-Store-Richtlinie 3.1.1: keine externen Spenden-Links in der iOS-App */
+body.native #info-spenden, body.native #donate-link { display: none !important; }
+/* Textvarianten: Web spricht von kostenlos/Spenden, die iOS-App nicht (kostenpflichtig im Store) */
+body.native .web-only { display: none !important; }
+body:not(.native) .native-only { display: none !important; }
+.step-check { display: none; }
+body.cook .step-check { display: block; }
+.check-btn { width: 3rem; height: 3rem; border-radius: 50%; border: 2px solid var(--gruen); background: #fff; font-size: 1.4rem; color: var(--gruen); }
+body.cook .step.done .check-btn { background: var(--gruen); color: #fff; }
+/* Zutaten/Hilfsmittel im Kochmodus abhakbar (Einkaufen / Bereitstellen) */
+body.cook .symbol-card { cursor: pointer; position: relative; }
+body.cook .symbol-card * { pointer-events: none; }
+body.cook .symbol-card.done { border: 3px solid var(--gruen); }
+body.cook .symbol-card.done::after { content: "✓"; position: absolute; top: .15rem; right: .35rem; color: var(--gruen); font-weight: 700; font-size: 1.4rem; }
+
+/* ===== Teilen ===== */
+.share-qr { display: flex; justify-content: center; }
+.share-qr svg { width: 14rem; height: 14rem; }
+.share-url { word-break: break-all; color: var(--text-dimm); text-align: center; }
+
+/* Druck-Footer nur auf Papier (print.css blendet ihn ein) */
+.print-footer { display: none; }

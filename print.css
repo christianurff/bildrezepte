@@ -1,0 +1,95 @@
+/* DIN-A4-Druckbogen (Spec § 5.4): Kopf, Zutaten-/Hilfsmittel-Raster,
+   Schritte als getrennte Zeilen — kein Schritt wird zerrissen. */
+@page { size: A4; margin: 14mm; }
+
+.app-header, .app-nav, .cook-bar, .edit-bar, .servings-stepper button, .step-tools,
+.step-check, .input-tiles, #input-panel, .progress, .error-box,
+#finished-card, dialog, #step-timer, .routines-panel, .chunk-del, .text-del, .symbol-del,
+.chunk-insert, .chunk-add, .chunk-symbol-add, .card-add, .app-footer { display: none !important; }
+
+html.fullscreen { font-size: 18px; } /* Vollbild-Skalierung nicht mitdrucken */
+body { font-size: 12pt; background: #fff; }
+body.cook .step { opacity: 1 !important; border: none !important; background: none !important; }
+main { max-width: none; padding: 0; }
+
+#recipe-title { color: #000; }
+.section-bar {
+  background: var(--akzent) !important;
+  color: #fff !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  break-after: avoid;
+}
+.step-badge {
+  background: var(--akzent) !important;
+  color: #fff !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Überschriften nie allein am Seitenende — immer mit der nächsten Zeile zusammen */
+.section-bar, #recipe-title,
+#prep-sheet h1, #prep-sheet h2,
+#checklist-sheet h1, #checklist-sheet h2 {
+  break-after: avoid; page-break-after: avoid;
+  break-inside: avoid; page-break-inside: avoid;
+}
+
+/* WebKit paginiert Flex/Grid unzuverlässig (Zeilen werden mittendrin
+   zerschnitten). Deshalb im Druck: Block-Layout mit Inline-Block-Karten —
+   atomare Boxen bricht das Druckwerk garantiert nicht auseinander. */
+.step {
+  display: block !important;
+  break-inside: avoid !important; page-break-inside: avoid !important;
+  position: relative; padding-left: 14mm; min-height: 14mm;
+  border-bottom: 2px dotted #555;
+}
+.step-side { position: absolute; left: 0; top: 3mm; }
+.step-main, .step-chunks { display: block !important; }
+.chunk { margin: 0 5mm 2mm 0; vertical-align: top; }
+.step-note { display: none !important; } /* Erwachsenen-Notiz nicht auf den Kinder-Bogen */
+.flag-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+.card-grid { display: block !important; }
+.symbol-card {
+  display: inline-block !important; width: 30%; margin: 0 1.5% 4mm 0;
+  vertical-align: top; break-inside: avoid !important; page-break-inside: avoid !important;
+  text-align: center;
+}
+/* „+"-Karte gehört nicht auf den Kinder-Bogen — muss NACH der
+   .symbol-card-Regel stehen, sonst gewinnt deren display !important */
+.symbol-card.card-add { display: none !important; }
+body.cook .symbol-card.done { border: 2px dashed var(--karte-rand); }
+body.cook .symbol-card.done::after { content: none; }
+.chunk-symbol { width: 2.2cm; height: 2.2cm; }
+.card-symbol { width: 2.4cm; height: 2.4cm; display: block; margin: 0 auto; }
+body.edit .chunk-text:not(.chunk-qty) { border-bottom: none; }
+body.edit .card-label { text-decoration: none; } /* Bearbeiten-Hinweis (gepunktete Linie) nicht mitdrucken */
+body.edit img[src$="platzhalter.svg"] { outline: none; }
+
+.print-footer { display: flex !important; align-items: center; gap: 8mm; margin-top: 8mm; font-size: 9pt; color: #555; }
+.print-footer svg { width: 2.5cm; height: 2.5cm; flex: 0 0 auto; }
+
+/* ===== Vorbereitungsblatt (Lehrkraft): nüchtern, nur Text ===== */
+body.print-prep #view-start, body.print-prep #view-recipe,
+body.print-prep .print-footer { display: none !important; }
+body.print-prep #prep-sheet { display: block !important; }
+
+/* ===== Einkaufs-/Bereitstellungsliste (Bildkarten zum Abhaken) ===== */
+body.print-checklist #view-start, body.print-checklist #view-recipe,
+body.print-checklist .print-footer { display: none !important; }
+body.print-checklist #checklist-sheet { display: block !important; }
+#checklist-sheet h1 { font-size: 16pt; }
+#checklist-sheet h2 { background: var(--akzent); color: #fff; padding: 2mm 4mm; border-radius: 2mm;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+#checklist-sheet .sheet-cards { display: block; }
+#checklist-sheet .check-card { display: inline-block; width: 22%; margin: 0 1.5% 4mm 0; vertical-align: top; border: 1pt dashed #777; border-radius: 2mm; padding: 3mm; text-align: center; break-inside: avoid; page-break-inside: avoid; }
+#checklist-sheet .check-card img { width: 2.2cm; height: 2.2cm; object-fit: contain; display: block; margin: 0 auto; }
+#checklist-sheet .check-card::before { content: ""; display: inline-block; width: 5mm; height: 5mm; border: 1pt solid #333; border-radius: 1mm; }
+#prep-sheet { font-family: -apple-system, "Segoe UI", Arial, sans-serif; }
+#prep-sheet h1 { font-size: 16pt; }
+#prep-sheet h2 { font-size: 13pt; border-bottom: 1px solid #555; padding-bottom: 2pt; margin-top: 8mm; }
+#prep-sheet ul { list-style: none; padding: 0; }
+#prep-sheet li { padding: 1.5mm 0; }
+#prep-sheet li.cb::before { content: ""; display: inline-block; width: 4mm; height: 4mm; border: 1pt solid #333; margin-right: 3mm; vertical-align: -0.5mm; }
+#prep-sheet small, #prep-sheet em { color: #555; }

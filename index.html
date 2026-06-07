@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Bildrezepte</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="print.css" media="print">
+</head>
+<body>
+  <header class="app-header">
+    <button id="nav-back" class="nav-back" data-icon="left" hidden><span id="nav-back-label">Übersicht</span></button>
+    <h1 class="app-title">Bildrezepte</h1>
+    <nav class="app-nav" id="app-nav">
+      <button id="nav-info" class="nav-btn" data-icon="info" title="Über Bildrezepte"></button>
+      <button id="nav-settings" class="nav-btn" data-icon="gear" title="Anzeige-Einstellungen"></button>
+      <button id="nav-print" class="nav-btn" data-icon="printer" title="Drucken" hidden></button>
+      <button id="nav-share" class="nav-btn" data-icon="share" title="Teilen" hidden></button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="view-start" class="view">
+      <h2>Neues Bildrezept erstellen</h2>
+      <div class="input-tiles">
+        <button class="tile" id="tile-photo" data-icon="camera"><span>Foto vom Rezept</span></button>
+        <button class="tile" id="tile-url" data-icon="globe"><span>Internetseite</span></button>
+        <button class="tile" id="tile-text" data-icon="text"><span>Text eingeben</span></button>
+      </div>
+      <input type="file" id="photo-input" accept="image/*" hidden>
+      <div id="input-panel" hidden>
+        <textarea id="text-input" rows="10" placeholder="Rezept hier einfügen oder eintippen …" hidden></textarea>
+        <input type="url" id="url-input" placeholder="https://…" hidden>
+        <button id="btn-generate" class="btn-primary">Bildrezept erstellen</button>
+      </div>
+      <div id="progress" class="progress" hidden></div>
+      <div id="error-box" class="error-box" hidden></div>
+
+      <div class="section-bar">Meine Rezepte</div>
+      <ul id="my-recipes" class="my-recipes"></ul>
+      <p class="backup-row">
+        <button id="btn-backup" class="btn-quiet" data-icon="save">Alle Rezepte sichern (Datei)</button>
+        <button id="btn-restore" class="btn-quiet" data-icon="upload">Aus Datei laden</button>
+        <input type="file" id="restore-input" accept=".json,application/json" hidden>
+      </p>
+
+      <div class="section-bar">Gemeinsame Rezepte-Sammlung</div>
+      <form id="collection-search" class="collection-search">
+        <input type="search" id="collection-q" placeholder="Suchen: Gericht, Zutat, Gerät …">
+        <button type="submit" data-icon="search">Suchen</button>
+      </form>
+      <div id="collection-cats" class="collection-cats"></div>
+      <p id="admin-hint" class="admin-hint" hidden>Admin-Modus aktiv: Öffentliche Rezepte können geöffnet, bearbeitet und gelöscht werden — Änderungen landen beim Speichern direkt in der Sammlung.</p>
+      <ul id="collection-list" class="collection-list"></ul>
+      <p><button id="collection-more" class="btn-quiet" hidden>Mehr laden</button></p>
+
+      <p><button id="btn-lexicon" class="btn-quiet" data-icon="image">Symbol-Lexikon</button>
+         <button id="btn-admin" class="btn-quiet">Admin</button></p>
+    </section>
+    <section id="view-recipe" class="view" hidden>
+      <h2 id="recipe-title" contenteditable="false"></h2>
+      <div class="servings-stepper">
+        <button id="servings-minus" aria-label="weniger Personen">−</button>
+        <span><strong id="servings-value">4</strong> Personen</span>
+        <button id="servings-plus" aria-label="mehr Personen">＋</button>
+      </div>
+      <div class="section-bar">Zutaten</div>
+      <div id="ingredients" class="card-grid"></div>
+      <div class="section-bar">Hilfsmittel</div>
+      <div id="tools" class="card-grid"></div>
+      <div class="section-bar">So geht es</div>
+      <div id="routines-panel" class="routines-panel">
+        <span id="routines-chips"></span>
+      </div>
+      <ol id="steps" class="steps"></ol>
+      <div id="finished-card" class="finished-card" hidden>
+        <p data-icon="check">Geschafft!</p>
+        <button id="btn-restart" data-icon="restart">Von vorn</button>
+      </div>
+      <div id="print-footer" class="print-footer">
+        <div id="print-qr"></div>
+        <p>Piktogramme: ARASAAC (arasaac.org) — Autor: Sergio Palao, Eigentum:
+           Gobierno de Aragón, Lizenz: CC BY-NC-SA.<br>
+           Erstellt mit Bildrezepte (bildrezepte.urff.app) — CC BY-NC-SA 4.0, Christian Urff.</p>
+      </div>
+      <div id="edit-bar" class="edit-bar">
+        <button id="btn-checklist" data-icon="basket">Einkaufsliste</button>
+        <button id="btn-cook-start" class="btn-primary" data-icon="pot">Kochen</button>
+        <button id="btn-save" data-icon="save">Speichern</button>
+      </div>
+      <div id="cook-bar" class="cook-bar">
+        <button id="cook-prev" data-icon="left" title="Zurück"></button>
+        <button id="cook-speak" data-icon="speaker" title="Vorlesen"></button>
+        <button id="cook-fullscreen" data-icon="expand" title="Vollbild"></button>
+        <button id="cook-lock" data-icon="lock" title="Schüler-Modus: Vollbild, nur Kochansicht; Verlassen durch langes Drücken auf den Rezeptnamen"></button>
+        <button id="cook-next" data-icon="right" title="Weiter"></button>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="qty-dialog">
+    <h3>Bearbeiten</h3>
+    <form method="dialog" class="dialog-form">
+      <div id="qty-fields">
+        <p id="qty-base-hint" class="dialog-hint"></p>
+        <label>Menge <input type="text" id="qty-value" inputmode="decimal" placeholder="z.B. 200 oder ½"></label>
+        <label>Einheit
+          <select id="qty-unit">
+            <option value="g">Gramm</option>
+            <option value="ml">Milliliter</option>
+            <option value="el">großer Löffel (EL)</option>
+            <option value="tl">kleiner Löffel (TL)</option>
+            <option value="becher">Becher</option>
+            <option value="prise">Prise</option>
+            <option value="pck">Päckchen</option>
+            <option value="stueck">Stück (Anzahl)</option>
+          </select>
+        </label>
+      </div>
+      <label>Name <input type="text" id="qty-name"></label>
+      <label id="qty-singular-row">Name für genau 1 (Einzahl) <input type="text" id="qty-singular" placeholder="z.B. Ei"></label>
+      <div class="dialog-actions">
+        <button id="qty-save" class="btn-primary">Speichern</button>
+        <button id="qty-delete" data-icon="trash">Löschen</button>
+        <button id="qty-cancel">Abbrechen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="symbol-dialog">
+    <h3>Bild auswählen</h3>
+    <form class="symbol-search" id="symbol-search-form">
+      <input type="search" id="symbol-search-input" placeholder="Suchbegriff …">
+      <button type="submit">Suchen</button>
+    </form>
+    <div id="symbol-quick" class="symbol-quick"></div>
+    <div id="symbol-results" class="symbol-results"></div>
+    <div class="dialog-actions">
+      <label class="btn-file" data-icon="camera">Eigenes Foto <input type="file" id="symbol-photo-input" accept="image/*" hidden></label>
+      <button id="symbol-none">Kein Bild</button>
+      <button id="symbol-cancel">Abbrechen</button>
+    </div>
+    <p class="dialog-hint">Du kannst ein eigenes Bild auch direkt hierher ziehen.</p>
+  </dialog>
+
+  <dialog id="share-dialog">
+    <h3>Rezept teilen</h3>
+    <div id="share-qr" class="share-qr"></div>
+    <p id="share-url" class="share-url"></p>
+    <div class="dialog-actions">
+      <button id="share-copy" data-icon="save">Link kopieren</button>
+      <button id="share-native" data-icon="share" hidden>Teilen …</button>
+      <button id="share-close" class="btn-primary">Schließen</button>
+    </div>
+  </dialog>
+
+  <dialog id="publish-dialog">
+    <h3>In die öffentliche Sammlung</h3>
+    <div id="publish-form">
+      <p class="dialog-hint" id="publish-hint">Dein Rezept wird automatisch geprüft und ist danach
+         für alle sichtbar und nutzbar.</p>
+      <label class="publish-label">Name oder Pseudonym (freiwillig)
+        <input type="text" id="publish-author" maxlength="30" placeholder="z.B. Klasse 4b">
+      </label>
+      <div class="dialog-actions">
+        <button id="publish-go" class="btn-primary">Prüfen und veröffentlichen</button>
+        <button id="publish-withdraw" hidden>Aus der Sammlung entfernen</button>
+        <button id="publish-cancel">Abbrechen</button>
+      </div>
+    </div>
+    <div id="publish-result" hidden>
+      <div id="publish-result-body"></div>
+      <div class="dialog-actions"><button id="publish-close">Schließen</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="print-dialog">
+    <h3>Drucken</h3>
+    <div class="dialog-form">
+      <button id="print-recipe" class="btn-primary" data-icon="printer">Bildrezept (für Kinder)</button>
+      <button id="print-shopping" data-icon="basket">Einkaufs- und Bereitstellungsliste</button>
+      <label class="publish-label">Anzahl Gruppen (für die Hochrechnung)
+        <input type="text" id="print-groups" inputmode="numeric" value="1">
+      </label>
+      <button id="print-prep" data-icon="printer">Vorbereitungsblatt (für die Lehrkraft)</button>
+      <button id="print-cancel">Abbrechen</button>
+    </div>
+  </dialog>
+
+  <section id="prep-sheet" hidden></section>
+  <section id="checklist-sheet" hidden></section>
+
+  <dialog id="checklist-dialog" class="wide">
+    <h3>Einkaufen und Bereitstellen</h3>
+    <p class="dialog-hint">Antippen hakt ab — z.B. beim Einkaufen oder am Vorratsschrank.
+       Die Haken bleiben gespeichert.</p>
+    <div class="section-bar">Einkaufen</div>
+    <div id="checklist-einkauf" class="check-grid"></div>
+    <div class="section-bar">Vorher bereitstellen</div>
+    <div id="checklist-bereit" class="check-grid"></div>
+    <div class="dialog-actions">
+      <button id="checklist-print" data-icon="printer">Drucken</button>
+      <button id="checklist-reset" data-icon="restart">Zurücksetzen</button>
+      <button id="checklist-close" class="btn-primary">Fertig</button>
+    </div>
+  </dialog>
+
+  <dialog id="resume-dialog">
+    <h3>Hier warst du</h3>
+    <p id="resume-text"></p>
+    <div class="dialog-actions">
+      <button id="resume-continue" class="btn-primary" data-icon="right">Weitermachen</button>
+      <button id="resume-restart" data-icon="restart">Von vorn anfangen</button>
+    </div>
+  </dialog>
+
+  <dialog id="info-dialog" class="wide">
+    <h3>Über Bildrezepte</h3>
+    <p>Bildrezepte macht aus jedem Rezept — fotografiert, von einer Internetseite
+       oder eingetippt — ein kleinschrittiges <strong>Bildrezept</strong> mit
+       Piktogrammen: gemacht für Kinder mit kognitiver Beeinträchtigung,
+       Förderschulen, inklusive Klassen und Familien.</p>
+    <ul class="info-liste">
+      <li><strong>KI-Erstellung:</strong> ein Schritt = eine Handlung, jedes Wort mit Bild, kindgerechte Maßeinheiten, Abwiegen und Timer als eigene Schritte</li>
+      <li><strong>Alles anpassbar:</strong> Texte, Bilder (ARASAAC-Suche oder eigenes Foto), Schritte und Mengen — einmal angepasste Symbole merkt sich die App</li>
+      <li><strong>Mengen rechnen mit:</strong> der Personen-Stepper passt alle Angaben automatisch an</li>
+      <li><strong>Kochmodus:</strong> Schritte abhaken, Vorlesen, Time-Timer-Uhr, Sicherheits-Marker, geschützter Schüler-Modus im Vollbild</li>
+      <li><strong>Drucken:</strong> Bildrezept (A4), Einkaufs-/Bereitstellungsliste, Lehrkraft-Vorbereitungsblatt mit Gruppen-Hochrechnung</li>
+      <li><strong>Teilen &amp; Sammlung:</strong> QR-Code-Links und eine öffentliche Rezepte-Sammlung zum Stöbern und Mitmachen</li>
+      <li><strong>Offline:</strong> einmal Geladenes bleibt in der App nutzbar — auch ohne Internet</li>
+    </ul>
+    <h3>Lizenz</h3>
+    <p class="dialog-hint">
+       <span class="web-only">Die App ist kostenlos und werbefrei: Lizenz</span>
+       <span class="native-only">Die App ist werbefrei: Lizenz</span>
+       <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a>.
+       Der Quellcode ist offen: <a href="https://github.com/christianurff/bildrezepte" target="_blank" rel="noopener">github.com/christianurff/bildrezepte</a>.
+       Piktogramme: <a href="https://arasaac.org" target="_blank" rel="noopener">ARASAAC</a> —
+       Autor: Sergio Palao, Eigentum: Gobierno de Aragón, Lizenz CC BY-NC-SA.</p>
+    <h3>Über mich</h3>
+    <p class="dialog-hint">
+       <span class="web-only">Entwickelt von Christian Urff — Server und KI kosten laufend
+       Geld, eine kleine Spende hilft, die App dauerhaft kostenlos anzubieten.</span>
+       <span class="native-only">Entwickelt von Christian Urff. Der Kaufpreis hilft,
+       die laufenden Server- und KI-Kosten zu decken — danke für deine Unterstützung!</span></p>
+    <div class="dialog-actions">
+      <button id="info-spenden" data-icon="heart">Spenden</button>
+      <a class="nav-btn" href="https://urff.app" target="_blank" rel="noopener">Meine Webseite</a>
+      <a class="nav-btn" href="https://urff.app/impressum/" target="_blank" rel="noopener">Impressum</a>
+      <button id="info-datenschutz">Datenschutz</button>
+      <button id="info-close" class="btn-primary">Schließen</button>
+    </div>
+  </dialog>
+
+  <dialog id="datenschutz-dialog" class="wide">
+    <h3>Datenschutzerklärung</h3>
+    <p class="dialog-hint">Verantwortlich für die Datenverarbeitung ist Christian Urff;
+       Kontaktdaten siehe <a href="https://urff.app/impressum/" target="_blank" rel="noopener">Impressum</a>.</p>
+
+    <h3>Welche Daten verarbeitet werden</h3>
+    <p><strong>Auf deinem Gerät:</strong> Deine Rezepte, Einstellungen, das Symbol-Lexikon
+       und der Kochfortschritt werden ausschließlich lokal im Browser bzw. in der App
+       gespeichert (localStorage) und nicht an uns übertragen. Es werden keine
+       Tracking-Cookies und keine Analyse-Werkzeuge eingesetzt.</p>
+    <p><strong>Beim Erstellen eines Bildrezepts:</strong> Der von dir eingegebene Text,
+       eine angegebene Internetadresse bzw. ein hochgeladenes Foto wird zur Verarbeitung
+       an unseren Server (Cloudflare) und von dort an den KI-Dienst OpenRouter
+       (mit dem Modell von Google) übermittelt. Gib dort bitte keine personenbezogenen
+       Daten ein, die nicht ins Rezept gehören.</p>
+    <p><strong>Beim Teilen und in der gemeinsamen Sammlung:</strong> Wenn du ein Rezept
+       teilst oder veröffentlichst, wird der Rezeptinhalt (und ein freiwillig
+       angegebenes Pseudonym) auf unserem Server gespeichert, damit andere es über
+       Link/QR-Code bzw. die Sammlung abrufen können. Veröffentlichte Rezepte sind
+       öffentlich sichtbar.</p>
+    <p><strong>IP-Adresse:</strong> Bei jeder Server-Anfrage wird deine IP-Adresse
+       kurzzeitig verarbeitet, um Missbrauch zu verhindern (Begrenzung der Anfragen,
+       Melde-Funktion). Sie wird nicht mit deinen Rezepten verknüpft.</p>
+
+    <h3>Empfänger / Drittdienste</h3>
+    <ul class="info-liste">
+      <li><strong>Cloudflare</strong> (Server, Speicherung) — verarbeitet Anfragen und IP-Adressen.</li>
+      <li><strong>OpenRouter</strong> und der KI-Anbieter (<strong>Google</strong>) — verarbeiten den Rezept-Inhalt zur Erstellung. Dabei kann eine Übermittlung in die USA stattfinden.</li>
+      <li><strong>ARASAAC</strong> (arasaac.org, Regierung von Aragón) — die Piktogramme werden von dort geladen.</li>
+      <li class="web-only"><strong>PayPal</strong> — nur, wenn du im Web auf „Spenden" tippst und die Zahlung selbst startest.</li>
+    </ul>
+
+    <h3>Speicherdauer</h3>
+    <p>Geteilte und veröffentlichte Rezepte bleiben gespeichert, bis sie gelöscht werden
+       (durch dich über deinen Geräte-Link bzw. durch uns). Daten zur Missbrauchs-Begrenzung
+       werden nur kurz vorgehalten. Lokale Daten kannst du jederzeit über deinen Browser
+       bzw. „Aus der Sammlung entfernen" löschen.</p>
+
+    <h3>Rechtsgrundlage &amp; deine Rechte</h3>
+    <p>Die Verarbeitung erfolgt zur Bereitstellung der von dir genutzten Funktionen
+       (Art. 6 Abs. 1 lit. b DSGVO) und zum Schutz des Dienstes vor Missbrauch
+       (Art. 6 Abs. 1 lit. f DSGVO). Du hast das Recht auf Auskunft, Berichtigung,
+       Löschung, Einschränkung und Widerspruch sowie ein Beschwerderecht bei einer
+       Datenschutz-Aufsichtsbehörde. Wende dich dafür an die im Impressum genannte Adresse.</p>
+
+    <div class="dialog-actions"><button id="datenschutz-close" class="btn-primary">Schließen</button></div>
+  </dialog>
+
+  <dialog id="settings-dialog">
+    <h3>Anzeige</h3>
+    <label class="set-row"><input type="checkbox" id="set-flags"> Sicherheits-Marker anzeigen (heiß, scharf, Hilfe holen)</label>
+    <label class="set-row"><input type="checkbox" id="set-mengen"> Mengen als Bilder zeigen („3 Löffel" = 3 Symbole)</label>
+    <label class="set-row"><input type="checkbox" id="set-autospeak"> Schritte im Kochmodus automatisch vorlesen</label>
+    <div class="dialog-actions"><button id="settings-close" class="btn-primary">Fertig</button></div>
+  </dialog>
+
+  <dialog id="chunk-add-dialog">
+    <h3>Was einfügen?</h3>
+    <div id="chunk-add-main" class="dialog-form">
+      <button id="ca-text" class="flag-toggle" data-icon="text">Text (mit Bild)</button>
+      <button id="ca-qty" class="flag-toggle" data-icon="basket">Menge einer Zutat</button>
+      <button id="ca-time" class="flag-toggle" data-icon="timer">Zeit mit Timer</button>
+      <button id="ca-arrow" class="flag-toggle">→&nbsp; Pfeil (z.B. „in die Schüssel")</button>
+      <div class="dialog-actions"><button id="ca-cancel">Abbrechen</button></div>
+    </div>
+    <div id="chunk-add-qty" hidden>
+      <p class="dialog-hint">Welche Zutat? Die Menge rechnet beim Personen-Stepper automatisch mit.</p>
+      <div id="ca-qty-list" class="flags-toggles"></div>
+      <div class="dialog-actions"><button id="ca-qty-back">Zurück</button></div>
+    </div>
+    <div id="chunk-add-time" hidden>
+      <label class="publish-label">Wie viele Minuten?
+        <input id="ca-minutes" type="text" inputmode="numeric" value="10">
+      </label>
+      <p class="dialog-hint">Im Kochmodus erscheint dazu automatisch die Timer-Uhr.</p>
+      <div class="dialog-actions">
+        <button id="ca-time-ok" class="btn-primary">Einfügen</button>
+        <button id="ca-time-back">Zurück</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="flags-dialog">
+    <h3>Marker und Notiz</h3>
+    <p class="dialog-hint">Ruhige Sicherheits-Symbole am Schrittrand (höchstens 2).
+       Die Notiz sehen nur Erwachsene (Editor und Vorbereitungsblatt).</p>
+    <div id="flags-toggles" class="flags-toggles"></div>
+    <label class="publish-label">Notiz für Begleitpersonen
+      <input type="text" id="flags-note" maxlength="120" placeholder="z.B. Ben braucht hier Hand-über-Hand">
+    </label>
+    <div class="dialog-actions">
+      <button id="flags-save" class="btn-primary">Speichern</button>
+      <button id="flags-cancel">Abbrechen</button>
+    </div>
+  </dialog>
+
+  <dialog id="donate-dialog">
+    <h3>Gefällt dir die App?</h3>
+    <p>Bildrezepte ist und bleibt kostenlos und werbefrei nutzbar. Für Server
+       und KI entstehen laufende Kosten und es steckt viel Aufwand in der
+       Entwicklung der App. Wenn dir die App hilft, spendier mir als Ausgleich
+       doch einen Kaffee: <strong>Schon 1–5 Euro helfen sehr</strong>, den
+       dauerhaften Betrieb zu sichern. Danke!</p>
+    <div class="dialog-actions">
+      <button id="donate-go" class="btn-primary" data-icon="heart">4 € spendieren</button>
+      <button id="donate-any">Anderer Betrag</button>
+      <button id="donate-later">Später</button>
+    </div>
+  </dialog>
+
+  <dialog id="lexicon-dialog">
+    <h3>Symbol-Lexikon</h3>
+    <p class="dialog-hint">Angepasste Symbole werden bei neuen Rezepten automatisch wiederverwendet.</p>
+    <ul id="lexicon-list" class="lexicon-list"></ul>
+    <div class="dialog-actions"><button id="lexicon-close">Schließen</button></div>
+  </dialog>
+
+  <footer class="app-footer">
+    <small>Piktogramme: ARASAAC (<a href="https://arasaac.org">arasaac.org</a>) —
+    Autor: Sergio Palao, Eigentum: Gobierno de Aragón, Lizenz: CC BY-NC-SA<br>
+    Bildrezepte — entwickelt von Christian Urff, Lizenz
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de">CC BY-NC-SA 4.0</a> ·
+    <a id="donate-link" href="#" target="_blank" rel="noopener" data-icon="heart" hidden>Spenden</a> ·
+    <a href="#" id="footer-datenschutz">Datenschutz</a> ·
+    <a href="https://urff.app/impressum/">Impressum</a></small>
+  </footer>
+
+  <script src="vendor/qrcode.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

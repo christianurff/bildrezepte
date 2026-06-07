@@ -1,0 +1,10 @@
+# Bildrezepte: HTML/JS/CSS immer beim Server gegenprüfen (Updates kommen sofort an),
+# Bilder und Schriften dürfen lange gecacht werden.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|js|css)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "\.(woff2|png|svg|jpg|jpeg)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+</IfModule>
