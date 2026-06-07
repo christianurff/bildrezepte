@@ -2,7 +2,7 @@
 
 Web-App, die aus beliebigen Rezepten (Foto, Internetseite oder Text) per KI
 **kleinschrittige Bildrezepte** für Kinder mit kognitiver Beeinträchtigung
-erstellt — mit ARASAAC-Piktogrammen, im Stil von METACOM-Kochmappen.
+erstellt — mit ARASAAC-Piktogrammen.
 
 **Funktionen:**
 - 📷 / 🔗 / ⌨️ Eingabe per Foto, URL oder Text → KI erstellt Schritte, Zutaten, Hilfsmittel
@@ -70,10 +70,3 @@ Christian Urff · [Impressum](https://urff.app/impressum/)
 - [ ] Drucken: A4-Vorschau, kein zerrissener Schritt, QR + Lizenzzeile
 - [ ] Teilen: QR scannen → Rezept öffnet im Kochmodus
 - [ ] Offline (DevTools): gespeicherte Rezepte + Kochmodus funktionieren
-
-## iOS-App
-
-Die iOS-App ist ein dünner SwiftUI/WKWebView-Wrapper um diese Web-App (mit
-nativem Offline-Puffer und Sprachausgabe über
-`window.webkit.messageHandlers.nativeApp`, siehe `js/tts.js`). Sie wird separat
-entwickelt und ist nicht Teil dieses Repositories.
